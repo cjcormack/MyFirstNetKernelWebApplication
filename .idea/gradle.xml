@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="expandStates">
+      <map>
+        <entry key="My First NetKernel Web Application" value="true" />
+        <entry key="My First NetKernel Web Application/My First NetKernel Web Application" value="true" />
+      </map>
+    </option>
+    <option name="gradleHome" value="/usr/local/java/gradle-1.0-rc-2" />
+    <option name="linkedProjectPath" value="$PROJECT_DIR$/build.gradle" />
+  </component>
+</project>
+

@@ -1,0 +1,162 @@
+boolean isNetKernelRunning() {
+  try {
+    def hostname = "localhost:1060"
+    def nkControlPanel = "panel/urn:org:netkernel:nkse:control:panel:home"
+    def url = new URL("http://${hostname}/${nkControlPanel}")
+    def connection = url.openConnection()
+    
+    return (connection.getResponseCode() == 200)
+  } catch (Exception e) {
+    return false
+  }
+}
+
+boolean isNetKernelInstalled() {
+  return new File(netKernelInstallPath).exists()
+}
+
+void doNetKernelInstall() {
+  File nkJar = new File("external/1060-NetKernel-EE.jar")
+  
+  javaexec {
+    main = "-jar"
+    args = [ relativePath(nkJar) ]
+    systemProperties = [ "unattended.install.directory": new File(netKernelInstallPath),
+                         "unattended.install.expand": true ]
+  }
+}
+
+void registerModule(File moduleFile) {
+  def moduleName = moduleFile.toURI().toASCIIString()
+  def modulesFile = new File(netKernelInstallPath, "etc/modules.xml")
+  def slurper = new XmlSlurper()
+  slurper.setKeepWhitespace(true)
+  def modules = slurper.parse(modulesFile)
+  def existingModule = modules.module.find { it == moduleName }
+  if (!existingModule) {
+    modules.appendNode {
+      module(moduleName, runLevel: "7")
+    }
+    def builder = new groovy.xml.StreamingMarkupBuilder()
+    String built = builder.bind { mkp.yield modules }
+    modulesFile.write(built)
+  }
+}
+
+task installNetKernel << {
+  if (isNetKernelInstalled()) {
+    println "NetKernel is already installed"
+  } else {
+    doNetKernelInstall()
+  }
+}
+
+task registerModules(dependsOn: installNetKernel) << {
+  registerModule(new File("external/urn.org.netkernelroc.mod.liquibase.jar"))
+}
+
+task runNetKernel(dependsOn: registerModules) << {
+  if (isNetKernelRunning()) {
+    println "NetKernel is already running"
+  } else {
+    exec {
+      commandLine = [new File(netKernelInstallPath, "bin/netkernel.sh")]
+    }
+  }
+}
+
+task downloadLatestPackageVersions << {
+  def seMainRepository = new PackageRepository("http://apposite.netkernel.org/repo", "1060-NetKernel-SE/4.1.1", "main")
+  getPackage("xml-saxon", seMainRepository, new File("external/packages"))
+}
+
+void getPackage(String packageName, PackageRepository repository, File downloadStore) {
+  if (!downloadStore.exists()) {
+    downloadStore.mkdirs()
+  }
+
+  def packageVersion = repository.getLatestPackageVersion(packageName)
+  packageVersion.download(new File(downloadStore, "${packageName}.nkp.jar"))
+}
+
+class PackageRepository {
+  String baseUrl
+  String path
+  String set
+  XmlSlurper slurper
+
+  PackageRepository(String baseUrl, String path, String set) {
+    this.baseUrl = baseUrl
+    this.set = set
+    this.path = path
+
+    slurper = new XmlSlurper()
+    slurper.setKeepWhitespace(true)
+  }
+
+  PackageVersion getLatestPackageVersion (String packageName) {
+    def baseRepositoryUrl = "${baseUrl}/netkernel/${path}/base/${set}/repository.xml"
+    def updateRepositoryUrl = "${baseUrl}/netkernel/${path}/update/${set}/repository.xml"
+    def securityRepositoryUrl = "${baseUrl}/netkernel/${path}/security/${set}/repository.xml"
+
+    def baseRepository = slurper.parse(baseRepositoryUrl)
+    def updateRepository = slurper.parse(updateRepositoryUrl)
+    def securityRepository = slurper.parse(securityRepositoryUrl)
+
+    def packages = new ArrayList<PackageVersion>()
+    (baseRepository.package.findAll { it.name == packageName }).list().each {
+      packages.add(new PackageVersion(it, this))
+    }
+    ((updateRepository.package.findAll { it.name == packageName }).list()).each {
+      packages.add(new PackageVersion(it, this))
+    }
+    ((securityRepository.package.findAll { it.name == packageName }).list()).each {
+      packages.add(new PackageVersion(it, this))
+    }
+
+    packages.sort();
+
+    if (packages.size() > 0) {
+      return packages.last()
+    } else {
+      return null
+    }
+  }
+}
+
+class PackageVersion implements Comparable {
+  def version
+  def aPackage
+  PackageRepository repository
+  PackageVersion (def aPackage, PackageRepository repository) {
+    this.aPackage = aPackage
+    this.repository = repository
+    version = aPackage.version
+  }
+
+  @Override
+  int compareTo(Object other) {
+    if (this.version.equals(other.version)) {
+      return 0
+    } else {
+      def aVersion = this.version.text().tokenize('.')
+      def bVersion = other.version.text().tokenize('.')
+
+      if ((aVersion[0] > bVersion[0]) ||
+          (aVersion[0] == bVersion[0] && aVersion[1] > bVersion[1]) ||
+          (aVersion[0] == bVersion[0] && aVersion[1] == bVersion[1] && aVersion[2] > bVersion[2])) {
+        return 1
+      } else {
+        return -1
+      }
+    }
+  }
+
+  void download(File targetFile) {
+    String address = "${repository.baseUrl}/${aPackage.filepath}${aPackage.filename}"
+    def file = new FileOutputStream(targetFile)
+    def out = new BufferedOutputStream(file)
+    out << new URL(address).openStream()
+    out.close()
+  }
+}
