@@ -1,3 +1,4 @@
 netkernel-instance/
 workspace.xml
 .gradle/
+buildSrc/build/classes/

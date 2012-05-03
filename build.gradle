@@ -1,3 +1,20 @@
+apply plugin: 'netkernel'
+
+nkRepositories {
+  packageDownloadStore = 'external/packages'
+
+  defineRepository (baseUrl: 'http://apposite.netkernel.org/repo',
+                    path:    '1060-NetKernel-SE/4.1.1',
+                    set:     'main')
+  defineRepository (baseUrl: 'http://www.netkernelroc.org/repositoryServer',
+                    path:    'stable',
+                    set:     'main')
+
+  definePackage    (name: 'xml-saxon')
+  definePackage    (name: 'netkernelroc-liquibase')
+  definePackage    (name: 'netkernelroc-layer2')
+}
+
 boolean isNetKernelRunning() {
   try {
     def hostname = "localhost:1060"
@@ -62,101 +79,5 @@ task runNetKernel(dependsOn: registerModules) << {
     exec {
       commandLine = [new File(netKernelInstallPath, "bin/netkernel.sh")]
     }
-  }
-}
-
-task downloadLatestPackageVersions << {
-  def seMainRepository = new PackageRepository("http://apposite.netkernel.org/repo", "1060-NetKernel-SE/4.1.1", "main")
-  getPackage("xml-saxon", seMainRepository, new File("external/packages"))
-}
-
-void getPackage(String packageName, PackageRepository repository, File downloadStore) {
-  if (!downloadStore.exists()) {
-    downloadStore.mkdirs()
-  }
-
-  def packageVersion = repository.getLatestPackageVersion(packageName)
-  packageVersion.download(new File(downloadStore, "${packageName}.nkp.jar"))
-}
-
-class PackageRepository {
-  String baseUrl
-  String path
-  String set
-  XmlSlurper slurper
-
-  PackageRepository(String baseUrl, String path, String set) {
-    this.baseUrl = baseUrl
-    this.set = set
-    this.path = path
-
-    slurper = new XmlSlurper()
-    slurper.setKeepWhitespace(true)
-  }
-
-  PackageVersion getLatestPackageVersion (String packageName) {
-    def baseRepositoryUrl = "${baseUrl}/netkernel/${path}/base/${set}/repository.xml"
-    def updateRepositoryUrl = "${baseUrl}/netkernel/${path}/update/${set}/repository.xml"
-    def securityRepositoryUrl = "${baseUrl}/netkernel/${path}/security/${set}/repository.xml"
-
-    def baseRepository = slurper.parse(baseRepositoryUrl)
-    def updateRepository = slurper.parse(updateRepositoryUrl)
-    def securityRepository = slurper.parse(securityRepositoryUrl)
-
-    def packages = new ArrayList<PackageVersion>()
-    (baseRepository.package.findAll { it.name == packageName }).list().each {
-      packages.add(new PackageVersion(it, this))
-    }
-    ((updateRepository.package.findAll { it.name == packageName }).list()).each {
-      packages.add(new PackageVersion(it, this))
-    }
-    ((securityRepository.package.findAll { it.name == packageName }).list()).each {
-      packages.add(new PackageVersion(it, this))
-    }
-
-    packages.sort();
-
-    if (packages.size() > 0) {
-      return packages.last()
-    } else {
-      return null
-    }
-  }
-}
-
-class PackageVersion implements Comparable {
-  def version
-  def aPackage
-  PackageRepository repository
-  PackageVersion (def aPackage, PackageRepository repository) {
-    this.aPackage = aPackage
-    this.repository = repository
-    version = aPackage.version
-  }
-
-  @Override
-  int compareTo(Object other) {
-    if (this.version.equals(other.version)) {
-      return 0
-    } else {
-      def aVersion = this.version.text().tokenize('.')
-      def bVersion = other.version.text().tokenize('.')
-
-      if ((aVersion[0] > bVersion[0]) ||
-          (aVersion[0] == bVersion[0] && aVersion[1] > bVersion[1]) ||
-          (aVersion[0] == bVersion[0] && aVersion[1] == bVersion[1] && aVersion[2] > bVersion[2])) {
-        return 1
-      } else {
-        return -1
-      }
-    }
-  }
-
-  void download(File targetFile) {
-    String address = "${repository.baseUrl}/${aPackage.filepath}${aPackage.filename}"
-    def file = new FileOutputStream(targetFile)
-    def out = new BufferedOutputStream(file)
-    out << new URL(address).openStream()
-    out.close()
   }
 }

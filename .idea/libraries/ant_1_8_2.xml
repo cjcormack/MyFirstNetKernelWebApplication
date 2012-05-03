@@ -1,0 +1,39 @@
+<component name="libraryTable">
+  <library name="ant-1.8.2">
+    <CLASSES>
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/ant-1.8.2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/ant-launcher-1.8.2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/asm-all-3.3.1.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/commons-collections-3.2.1.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/commons-io-1.4.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/commons-lang-2.6.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/dom4j-1.6.1.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/gradle-base-services-1.0-rc-2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/gradle-cli-1.0-rc-2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/gradle-core-1.0-rc-2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/gradle-launcher-1.0-rc-2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/gradle-native-1.0-rc-2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/gradle-open-api-1.0-rc-2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/gradle-tooling-api-1.0-rc-2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/gradle-ui-1.0-rc-2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/gradle-wrapper-1.0-rc-2.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/groovy-all-1.8.6.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/guava-11.0.1.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/ivy-2.2.0.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/jansi-1.2.1.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/jaxen-1.1.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/jcip-annotations-1.0.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/jcl-over-slf4j-1.6.4.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/jna-3.2.7.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/jna-posix-1.0.3.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/jsch-0.1.46.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/jul-to-slf4j-1.6.4.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/log4j-over-slf4j-1.6.4.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/logback-classic-1.0.0.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/logback-core-1.0.0.jar!/" />
+      <root url="jar:///usr/local/java/gradle-1.0-rc-2/lib/slf4j-api-1.6.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
